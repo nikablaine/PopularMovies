@@ -5,16 +5,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Utility class that contains methods for quick parsing of JSON string returned by movieDB.org
  */
 public class JsonUtil {
 
-    public static List<Movie> parseMovieString(String jsonString) throws JSONException {
+    public static ArrayList<Movie> parseMovieString(String jsonString) throws JSONException {
 
-        List<Movie> movies = new ArrayList<>();
+        ArrayList<Movie> movies = new ArrayList<>();
 
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONArray movieArray = jsonObject.getJSONArray("results");

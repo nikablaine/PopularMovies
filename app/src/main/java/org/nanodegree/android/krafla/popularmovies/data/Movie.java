@@ -2,6 +2,8 @@ package org.nanodegree.android.krafla.popularmovies.data;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,7 +14,7 @@ import static org.nanodegree.android.krafla.popularmovies.data.URLs.POSTER_BASE_
 /**
  * Class representing film.
  */
-public class Movie {
+public class Movie implements Parcelable {
 
     public static final String ORIGINAL_TITLE_KEY = "original_title";
     public static final String POSTER_PATH_KEY = "poster_path";
@@ -155,5 +157,37 @@ public class Movie {
             return releaseDate.substring(0, 4);
         }
         return EMPTY_STRING;
+    }
+
+    // parts needed because of implementing Parcelable
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeBundle(assembleBundle());
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+    private Movie(Parcel in) {
+        Bundle bundle = in.readBundle();
+        this.originalTitle = bundle.getString(ORIGINAL_TITLE_KEY);
+        this.posterPath = bundle.getString(POSTER_PATH_KEY);
+        this.backdropPath = bundle.getString(BACKDROP_PATH_KEY);
+        this.overview = bundle.getString(OVERVIEW_KEY);
+        this.userRating = bundle.getDouble(VOTE_AVERAGE_KEY);
+        this.releaseDate = bundle.getString(RELEASE_DATE_KEY);
     }
 }

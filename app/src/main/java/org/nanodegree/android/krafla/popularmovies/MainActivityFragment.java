@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONException;
+import org.nanodegree.android.krafla.popularmovies.data.Constants;
 import org.nanodegree.android.krafla.popularmovies.data.JsonUtil;
 import org.nanodegree.android.krafla.popularmovies.data.Movie;
 import org.nanodegree.android.krafla.popularmovies.data.URLs;
@@ -27,7 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
+import java.util.ArrayList;
 
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.API_KEY_PARAM;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_KEY;
@@ -44,24 +45,40 @@ public class MainActivityFragment extends Fragment {
     public static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
     private ImageAdapter movieAdapter;
+    private ArrayList<Movie> movies;
+    private boolean currentSort;
 
     public MainActivityFragment() {
     }
 
     @Override
-    public void onOptionsMenuClosed(Menu menu) {
-        super.onOptionsMenuClosed(menu);
-        updateMovies();
+    public void onResume() {
+        super.onResume();
+
+        // if we're resuming after changing a setting, then we update the grid view
+        boolean sort = currentSort;
+        updateCurrentSort();
+        if (sort != currentSort) {
+            updateMovies();
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (movies != null) {
+            outState.putParcelableArrayList(Constants.MOVIES_LIST_KEY, movies);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        processSavedInstanceState(savedInstanceState);
+
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        // initialize the image adapter
-        movieAdapter = new ImageAdapter(getActivity());
 
         // find the grid view and set the adapter
         GridView gridView = (GridView) view.findViewById(R.id.movie_view);
@@ -71,6 +88,18 @@ public class MainActivityFragment extends Fragment {
         return view;
     }
 
+    private void processSavedInstanceState(Bundle savedInstanceState) {
+        // initialize the image adapter
+        movieAdapter = new ImageAdapter(getActivity());
+
+        if (savedInstanceState != null) {
+            ArrayList<Movie> movieList = savedInstanceState.getParcelableArrayList(Constants.MOVIES_LIST_KEY);
+            movieAdapter.updateData(movieList);
+        } else {
+            updateMovies();
+        }
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -78,21 +107,21 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateMovies();
+    private void updateMovies() {
+        FetchMovieTask fetchMovieTask = new FetchMovieTask();
+        updateCurrentSort();
+        fetchMovieTask.execute(currentSort);
     }
 
-    private void updateMovies() {
+    private void updateCurrentSort() {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String popularValue = getString(R.string.pref_sort_popular_value);
         String sort = defaultSharedPreferences.getString(getString(R.string.pref_sort_key), popularValue);
-        FetchMovieTask fetchMovieTask = new FetchMovieTask();
-        fetchMovieTask.execute(sort.equals(popularValue));
+        currentSort = sort.equals(popularValue);
     }
 
     public class FetchMovieTask extends AsyncTask<Boolean, Void, String> {
@@ -162,7 +191,7 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             try {
-                List<Movie> movies = JsonUtil.parseMovieString(s);
+                movies = JsonUtil.parseMovieString(s);
                 movieAdapter.updateData(movies);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Could not parse string returned from the server", e);
