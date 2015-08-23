@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONException;
+import org.nanodegree.android.krafla.popularmovies.data.JsonUtil;
 import org.nanodegree.android.krafla.popularmovies.data.Movie;
 import org.nanodegree.android.krafla.popularmovies.data.URLs;
 

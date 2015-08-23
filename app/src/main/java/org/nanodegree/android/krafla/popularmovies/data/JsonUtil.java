@@ -1,9 +1,8 @@
-package org.nanodegree.android.krafla.popularmovies;
+package org.nanodegree.android.krafla.popularmovies.data;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.nanodegree.android.krafla.popularmovies.data.Movie;
 
 import java.util.ArrayList;
 import java.util.List;
