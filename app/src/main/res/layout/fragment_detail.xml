@@ -1,0 +1,50 @@
+
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="@android:color/background_dark"
+    android:orientation="vertical"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent">
+
+    <TextView
+        android:id="@+id/movie_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="@dimen/abc_text_size_headline_material"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@+id/released"
+        android:paddingBottom="0dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="italic" />
+    <TextView
+        android:id="@+id/rated"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="italic" />
+    <ImageView
+        android:id="@+id/backdrop"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        android:contentDescription="@string/backdrop_name" />
+
+    <TextView
+        android:id="@+id/synopsis"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:textColor="@android:color/darker_gray" />
+</LinearLayout>

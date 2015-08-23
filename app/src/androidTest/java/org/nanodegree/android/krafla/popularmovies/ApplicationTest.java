@@ -1,4 +1,4 @@
-package org.nanodegree.android.krafla.popularmovies_1;
+package org.nanodegree.android.krafla.popularmovies;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
