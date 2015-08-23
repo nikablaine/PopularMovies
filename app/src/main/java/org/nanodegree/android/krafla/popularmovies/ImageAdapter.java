@@ -55,20 +55,6 @@ public class ImageAdapter extends BaseAdapter {
             return null;
         }
 
-        /* ImageView movieView;
-
-        if (convertView == null) {
-
-            movieView = new ImageView(context);
-
-        } else {
-            movieView = (ImageView) convertView;
-        }
-
-        Picasso.with(context).load(movie.getUriForPoster(DEFAULT_POSTER_SIZE)).into(movieView);
-
-        return movieView;*/
-
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
