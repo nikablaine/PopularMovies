@@ -7,8 +7,14 @@ public class MovieBuilder {
     private String overview;
     private double userRating;
     private String releaseDate;
+    private String id;
 
     public MovieBuilder() {
+    }
+
+    public MovieBuilder setId(String id) {
+        this.id = id;
+        return this;
     }
 
     public MovieBuilder setOriginalTitle(String originalTitle) {
@@ -42,6 +48,6 @@ public class MovieBuilder {
     }
 
     public Movie createMovie() {
-        return new Movie(originalTitle, posterPath, backdropPath, overview, userRating, releaseDate);
+        return new Movie(id, originalTitle, posterPath, backdropPath, overview, userRating, releaseDate);
     }
 }

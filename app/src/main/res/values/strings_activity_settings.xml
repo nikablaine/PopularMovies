@@ -40,6 +40,7 @@
         <item>@string/pref_sort_popular_value</item>
         <item>@string/pref_sort_rated_value</item>
     </string-array>
+    <string name="trailers_caption">Trailers:</string>
 
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>

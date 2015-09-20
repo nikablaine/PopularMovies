@@ -16,12 +16,19 @@ import static org.nanodegree.android.krafla.popularmovies.data.URLs.POSTER_BASE_
  */
 public class Movie implements Parcelable {
 
+    public static final String ID_KEY = "id";
     public static final String ORIGINAL_TITLE_KEY = "original_title";
     public static final String POSTER_PATH_KEY = "poster_path";
     public static final String BACKDROP_PATH_KEY = "backdrop_path";
     public static final String OVERVIEW_KEY = "overview";
     public static final String VOTE_AVERAGE_KEY = "vote_average";
     public static final String RELEASE_DATE_KEY = "release_date";
+
+    /**
+     * Id of a movie in the movie database.
+     */
+    private String id;
+
     /**
      * Original title of a movie.
      */
@@ -55,6 +62,7 @@ public class Movie implements Parcelable {
 
 
     public static Movie parseFromJSONObject(JSONObject movieObject) throws JSONException {
+        String id = movieObject.getString(ID_KEY);
         String originalTitle = movieObject.getString(ORIGINAL_TITLE_KEY);
         String posterPath = movieObject.getString(POSTER_PATH_KEY);
         String backdropPath = movieObject.getString(BACKDROP_PATH_KEY);
@@ -63,6 +71,7 @@ public class Movie implements Parcelable {
         String releaseDate = movieObject.getString(RELEASE_DATE_KEY);
 
         return new MovieBuilder()
+                .setId(id)
                 .setOriginalTitle(originalTitle)
                 .setPosterPath(posterPath)
                 .setBackdropPath(backdropPath)
@@ -73,6 +82,7 @@ public class Movie implements Parcelable {
     }
 
     public static Movie parseFromBundle(Bundle bundle) {
+        String id = bundle.getString(ID_KEY);
         String originalTitle = bundle.getString(ORIGINAL_TITLE_KEY);
         String posterPath = bundle.getString(POSTER_PATH_KEY);
         String backdropPath = bundle.getString(BACKDROP_PATH_KEY);
@@ -81,6 +91,7 @@ public class Movie implements Parcelable {
         String releaseDate = bundle.getString(RELEASE_DATE_KEY);
 
         return new MovieBuilder()
+                .setId(id)
                 .setOriginalTitle(originalTitle)
                 .setPosterPath(posterPath)
                 .setBackdropPath(backdropPath)
@@ -90,7 +101,8 @@ public class Movie implements Parcelable {
                 .createMovie();
     }
 
-    public Movie(String originalTitle, String posterPath, String backdropPath, String overview, double userRating, String releaseDate) {
+    public Movie(String id, String originalTitle, String posterPath, String backdropPath, String overview, double userRating, String releaseDate) {
+        this.id = id;
         this.originalTitle = originalTitle;
         this.posterPath = posterPath;
         this.backdropPath = backdropPath;
@@ -126,6 +138,7 @@ public class Movie implements Parcelable {
      */
     public Bundle assembleBundle() {
         Bundle bundle = new Bundle();
+        bundle.putString(ID_KEY, id);
         bundle.putString(ORIGINAL_TITLE_KEY, originalTitle);
         bundle.putString(POSTER_PATH_KEY, posterPath);
         bundle.putString(BACKDROP_PATH_KEY, backdropPath);
@@ -133,6 +146,10 @@ public class Movie implements Parcelable {
         bundle.putDouble(VOTE_AVERAGE_KEY, userRating);
         bundle.putString(RELEASE_DATE_KEY, releaseDate);
         return bundle;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getOriginalTitle() {
@@ -183,6 +200,7 @@ public class Movie implements Parcelable {
 
     private Movie(Parcel in) {
         Bundle bundle = in.readBundle();
+        this.id = bundle.getString(ID_KEY);
         this.originalTitle = bundle.getString(ORIGINAL_TITLE_KEY);
         this.posterPath = bundle.getString(POSTER_PATH_KEY);
         this.backdropPath = bundle.getString(BACKDROP_PATH_KEY);

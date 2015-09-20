@@ -12,16 +12,29 @@ import java.util.ArrayList;
 public class JsonUtil {
 
     public static ArrayList<Movie> parseMovieString(String jsonString) throws JSONException {
-
+        JSONArray movieArray = getResultsArrayFromJson(jsonString);
         ArrayList<Movie> movies = new ArrayList<>();
-
-        JSONObject jsonObject = new JSONObject(jsonString);
-        JSONArray movieArray = jsonObject.getJSONArray("results");
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject movieObject = (JSONObject) movieArray.get(i);
             movies.add(Movie.parseFromJSONObject(movieObject));
 
         }
         return movies;
+    }
+
+    public static ArrayList<Trailer> parseTrailerString(String jsonString) throws JSONException {
+        JSONArray trailersArray = getResultsArrayFromJson(jsonString);
+        ArrayList<Trailer> trailerList = new ArrayList<>();
+        for (int i = 0; i < trailersArray.length(); i++) {
+            JSONObject trailerObject = (JSONObject) trailersArray.get(i);
+            trailerList.add(Trailer.parseFromJSONObject(trailerObject));
+
+        }
+        return trailerList;
+    }
+
+    private static JSONArray getResultsArrayFromJson(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        return jsonObject.getJSONArray("results");
     }
 }

@@ -143,6 +143,7 @@ public class MainActivityFragment extends Fragment {
                         .appendQueryParameter(SORT_PARAM, params[0] ? POPULARITY_OPTION : RATING_OPTION)
                         .build();
                 URL url = new URL(builtUri.toString());
+                Log.d(LOG_TAG, "Request = " + url);
 
                 // Create the request to MovieDB, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();

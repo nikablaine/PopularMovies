@@ -2,8 +2,11 @@ package org.nanodegree.android.krafla.popularmovies;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +15,23 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
 import org.nanodegree.android.krafla.popularmovies.data.Constants;
+import org.nanodegree.android.krafla.popularmovies.data.JsonUtil;
 import org.nanodegree.android.krafla.popularmovies.data.Movie;
+import org.nanodegree.android.krafla.popularmovies.data.Trailer;
+import org.nanodegree.android.krafla.popularmovies.data.URLs;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+
+import static org.nanodegree.android.krafla.popularmovies.data.Constants.API_KEY_PARAM;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.DEFAULT_BACKDROP_SIZE;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_KEY;
 
@@ -23,6 +40,9 @@ import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_K
  * A placeholder fragment containing a simple view.
  */
 public class DetailActivityFragment extends Fragment {
+
+    private static final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+    private ArrayList<Trailer> trailers;
 
     public DetailActivityFragment() {
     }
@@ -44,8 +64,8 @@ public class DetailActivityFragment extends Fragment {
             TextView titleView = (TextView) rootView.findViewById(R.id.movie_title);
             titleView.setText(movie.getOriginalTitle());
 
-            ImageView backdropview = (ImageView) rootView.findViewById(R.id.backdrop);
-            Picasso.with(activity).load(movie.getUriForBackdrop(DEFAULT_BACKDROP_SIZE)).into(backdropview);
+            ImageView backdropView = (ImageView) rootView.findViewById(R.id.backdrop);
+            Picasso.with(activity).load(movie.getUriForBackdrop(DEFAULT_BACKDROP_SIZE)).into(backdropView);
 
             TextView synopsisView = (TextView) rootView.findViewById(R.id.synopsis);
             synopsisView.setText(movie.getOverview() == null ? "" : movie.getOverview());
@@ -55,8 +75,88 @@ public class DetailActivityFragment extends Fragment {
 
             TextView ratedView = (TextView) rootView.findViewById(R.id.rated);
             ratedView.setText(Constants.RATED + movie.getUserRating());
+
+            new FetchTrailersTask().execute(movie.getId());
         }
 
         return rootView;
+    }
+
+    public class FetchTrailersTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            if (params.length < 1) {
+                throw new IllegalArgumentException("Bad params");
+            }
+
+            String id = params[0];
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+
+            // Will contain the raw JSON response as a string.
+            String answerString = null;
+            try {
+                Uri builtUri = Uri.parse(MessageFormat.format(URLs.TRAILER_URL_PATTERN, id))
+                        .buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, getResources().getString(R.string.api_key))
+                        .build();
+                URL url = new URL(builtUri.toString());
+
+                // Create the request to MovieDB, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                answerString = buffer.toString();
+                return answerString;
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                return null;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.d(LOG_TAG, "returned string = " + s);
+            try {
+                trailers = JsonUtil.parseTrailerString(s);
+                Log.d(LOG_TAG, "trailers = " + trailers);
+                // movieAdapter.updateData(movies);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, "Could not parse string returned from the server", e);
+            }
+        }
     }
 }
