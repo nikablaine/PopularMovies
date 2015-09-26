@@ -36,6 +36,9 @@ import java.util.ArrayList;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.API_KEY_PARAM;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.DEFAULT_BACKDROP_SIZE;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_KEY;
+import static org.nanodegree.android.krafla.popularmovies.data.Constants.RATED;
+import static org.nanodegree.android.krafla.popularmovies.data.Constants.RELEASED;
+import static org.nanodegree.android.krafla.popularmovies.data.Constants.TRAILERS_LIST_KEY;
 
 
 /**
@@ -45,45 +48,44 @@ public class DetailActivityFragment extends Fragment {
 
     private static final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
     public static final String YOUTUBE_STRING = "https://www.youtube.com/watch?v=";
+    private ArrayList<Trailer> trailers;
     private LinearLayout trailerView;
+    private Movie movie;
 
     public DetailActivityFragment() {
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (trailers != null) {
+            outState.putParcelableArrayList(TRAILERS_LIST_KEY, trailers);
+        }
+        if (movie != null) {
+            outState.putParcelable(Constants.MOVIE_KEY, movie);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Activity activity = getActivity();
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         trailerView = (LinearLayout) rootView.findViewById(R.id.trailer_cards);
 
-        // normally, we will open the detail activity passing along the movie information
-        Intent intent = activity.getIntent();
+        if (savedInstanceState != null) {
+            processSavedInstanceState(savedInstanceState, rootView);
+        } else {
+            Activity activity = getActivity();
+            Intent intent = activity.getIntent();
+            if (intent != null && intent.hasExtra(MOVIE_KEY)) {
+                Bundle bundleExtra = intent.getBundleExtra(MOVIE_KEY);
+                movie = Movie.parseFromBundle(bundleExtra);
 
-        if (intent != null && intent.hasExtra(MOVIE_KEY)) {
-            Bundle bundleExtra = intent.getBundleExtra(MOVIE_KEY);
-            Movie movie = Movie.parseFromBundle(bundleExtra);
-
-            TextView titleView = (TextView) rootView.findViewById(R.id.movie_title);
-            titleView.setText(movie.getOriginalTitle());
-
-            ImageView backdropView = (ImageView) rootView.findViewById(R.id.backdrop);
-            Picasso.with(activity).load(movie.getUriForBackdrop(DEFAULT_BACKDROP_SIZE)).into(backdropView);
-
-            TextView synopsisView = (TextView) rootView.findViewById(R.id.synopsis);
-            synopsisView.setText(movie.getOverview() == null ? "" : movie.getOverview());
-
-            TextView releaseView = (TextView) rootView.findViewById(R.id.released);
-            releaseView.setText(Constants.RELEASED + movie.getReleaseYear());
-
-            TextView ratedView = (TextView) rootView.findViewById(R.id.rated);
-            ratedView.setText(Constants.RATED + movie.getUserRating());
-
-            new FetchTrailersTask().execute(movie.getId());
+                update(rootView);
+            }
         }
-
         return rootView;
     }
 
@@ -156,30 +158,63 @@ public class DetailActivityFragment extends Fragment {
         protected void onPostExecute(String s) {
             Log.d(LOG_TAG, "returned string = " + s);
             try {
-                ArrayList<Trailer> trailers = JsonUtil.parseTrailerString(s);
-                for (int i = 0; i < trailers.size(); i++) {
-                    final Trailer trailer = trailers.get(i);
-
-                    LayoutInflater inflater = (LayoutInflater) getActivity()
-                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                    View trailerItemView = inflater.inflate(R.layout.trailer_item, null);
-                    TextView trailerName = (TextView) trailerItemView.findViewById(R.id.trailer_name);
-                    trailerName.setText(trailer.getName());
-
-                    trailerView.addView(trailerItemView);
-                    trailerItemView.setOnClickListener(new View.OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(createYouTubeLink(trailer.getKey()))));
-                        }
-                    });
-                }
-                Log.d(LOG_TAG, "trailers = " + trailers);
+                trailers = JsonUtil.parseTrailerString(s);
+                processTrailers();
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Could not parse string returned from the server", e);
             }
+        }
+    }
+
+    private void processTrailers() {
+        for (int i = 0; i < trailers.size(); i++) {
+            final Trailer trailer = trailers.get(i);
+
+            LayoutInflater inflater = (LayoutInflater) getActivity()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            View trailerItemView = inflater.inflate(R.layout.trailer_item, null);
+            TextView trailerName = (TextView) trailerItemView.findViewById(R.id.trailer_name);
+            trailerName.setText(trailer.getName());
+
+            trailerView.addView(trailerItemView);
+            trailerItemView.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(createYouTubeLink(trailer.getKey()))));
+                }
+            });
+        }
+    }
+
+    private void processSavedInstanceState(Bundle savedInstanceState, View rootView) {
+        if (savedInstanceState != null) {
+            trailers = savedInstanceState.getParcelableArrayList(TRAILERS_LIST_KEY);
+            movie = savedInstanceState.getParcelable(MOVIE_KEY);
+            processTrailers();
+        }
+        update(rootView);
+    }
+
+    private void update(View rootView) {
+        String movieId = movie.getId();
+        TextView titleView = (TextView) rootView.findViewById(R.id.movie_title);
+        titleView.setText(movie.getOriginalTitle());
+
+        ImageView backdropView = (ImageView) rootView.findViewById(R.id.backdrop);
+        Picasso.with(getActivity()).load(movie.getUriForBackdrop(DEFAULT_BACKDROP_SIZE)).into(backdropView);
+
+        TextView synopsisView = (TextView) rootView.findViewById(R.id.synopsis);
+        synopsisView.setText(movie.getOverview() == null ? "" : movie.getOverview());
+
+        TextView releaseView = (TextView) rootView.findViewById(R.id.released);
+        releaseView.setText(RELEASED + movie.getReleaseYear());
+
+        TextView ratedView = (TextView) rootView.findViewById(R.id.rated);
+        ratedView.setText(RATED + movie.getUserRating());
+        if (trailers == null) {
+            new FetchTrailersTask().execute(movieId);
         }
     }
 

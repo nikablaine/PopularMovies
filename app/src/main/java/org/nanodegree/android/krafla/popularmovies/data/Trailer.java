@@ -1,5 +1,9 @@
 package org.nanodegree.android.krafla.popularmovies.data;
 
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,7 +12,7 @@ import org.json.JSONObject;
  *
  * @author Veronika Rodionova nika.blaine@gmail.com
  */
-public class Trailer {
+public class Trailer implements Parcelable {
 
     public static final String ID_KEY = "id";
     public static final String NAME_KEY = "name";
@@ -68,6 +72,38 @@ public class Trailer {
         return key;
     }
 
+    /**
+     * Creates a bundle with all the information about a trailer.
+     *
+     * @return bundle with trailer information
+     */
+    public Bundle assembleBundle() {
+        Bundle bundle = new Bundle();
+        bundle.putString(ID_KEY, id);
+        bundle.putString(NAME_KEY, name);
+        bundle.putString(SITE_KEY, site);
+        bundle.putString(KEY_KEY, key);
+        return bundle;
+    }
+
+    public static final Parcelable.Creator<Trailer> CREATOR = new Parcelable.Creator<Trailer>() {
+        public Trailer createFromParcel(Parcel in) {
+            return new Trailer(in);
+        }
+
+        public Trailer[] newArray(int size) {
+            return new Trailer[size];
+        }
+    };
+
+    private Trailer(Parcel in) {
+        Bundle bundle = in.readBundle();
+        this.id = bundle.getString(ID_KEY);
+        this.name = bundle.getString(NAME_KEY);
+        this.site = bundle.getString(SITE_KEY);
+        this.key = bundle.getString(KEY_KEY);
+    }
+
     @Override
     public String toString() {
         return new StringBuilder()
@@ -76,5 +112,15 @@ public class Trailer {
                 .append(SITE_KEY + SEPARATOR + site)
                 .append(KEY_KEY + SEPARATOR + key)
                 .toString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeBundle(assembleBundle());
     }
 }

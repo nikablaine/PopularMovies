@@ -18,7 +18,9 @@ public class Constants {
     public static final String RATING_OPTION = "vote_average.desc";
     public static final String EMPTY_STRING = "";
     public static final String MOVIES_LIST_KEY = "movies";
+    public static final String TRAILERS_LIST_KEY = "trailers";
     public static final String POPULARITY_KEY = "pop";
+    public static final String MOVIE_ID_KEY = "movie_id";
 
     private Constants() {
     }
