@@ -1,4 +1,4 @@
-package org.nanodegree.android.krafla.popularmovies;
+package org.nanodegree.android.krafla.popularmovies.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import org.nanodegree.android.krafla.popularmovies.R;
 import org.nanodegree.android.krafla.popularmovies.data.Constants;
 import org.nanodegree.android.krafla.popularmovies.data.Movie;
 

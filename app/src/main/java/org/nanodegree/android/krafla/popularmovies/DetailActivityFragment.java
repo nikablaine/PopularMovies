@@ -1,6 +1,7 @@
 package org.nanodegree.android.krafla.popularmovies;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -42,7 +44,8 @@ import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_K
 public class DetailActivityFragment extends Fragment {
 
     private static final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
-    private ArrayList<Trailer> trailers;
+    public static final String YOUTUBE_STRING = "https://www.youtube.com/watch?v=";
+    private LinearLayout trailerView;
 
     public DetailActivityFragment() {
     }
@@ -53,6 +56,8 @@ public class DetailActivityFragment extends Fragment {
 
         Activity activity = getActivity();
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+
+        trailerView = (LinearLayout) rootView.findViewById(R.id.trailer_cards);
 
         // normally, we will open the detail activity passing along the movie information
         Intent intent = activity.getIntent();
@@ -151,12 +156,34 @@ public class DetailActivityFragment extends Fragment {
         protected void onPostExecute(String s) {
             Log.d(LOG_TAG, "returned string = " + s);
             try {
-                trailers = JsonUtil.parseTrailerString(s);
+                ArrayList<Trailer> trailers = JsonUtil.parseTrailerString(s);
+                for (int i = 0; i < trailers.size(); i++) {
+                    final Trailer trailer = trailers.get(i);
+
+                    LayoutInflater inflater = (LayoutInflater) getActivity()
+                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                    View trailerItemView = inflater.inflate(R.layout.trailer_item, null);
+                    TextView trailerName = (TextView) trailerItemView.findViewById(R.id.trailer_name);
+                    trailerName.setText(trailer.getName());
+
+                    trailerView.addView(trailerItemView);
+                    trailerItemView.setOnClickListener(new View.OnClickListener() {
+
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(createYouTubeLink(trailer.getKey()))));
+                        }
+                    });
+                }
                 Log.d(LOG_TAG, "trailers = " + trailers);
-                // movieAdapter.updateData(movies);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Could not parse string returned from the server", e);
             }
         }
+    }
+
+    private static String createYouTubeLink(String key) {
+        return YOUTUBE_STRING + key;
     }
 }

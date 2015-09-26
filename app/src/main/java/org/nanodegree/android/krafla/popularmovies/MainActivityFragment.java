@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONException;
+import org.nanodegree.android.krafla.popularmovies.adapters.ImageAdapter;
 import org.nanodegree.android.krafla.popularmovies.data.Constants;
 import org.nanodegree.android.krafla.popularmovies.data.JsonUtil;
 import org.nanodegree.android.krafla.popularmovies.data.Movie;
@@ -78,7 +79,6 @@ public class MainActivityFragment extends Fragment {
 
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-
 
         // find the grid view and set the adapter
         GridView gridView = (GridView) view.findViewById(R.id.movie_view);
