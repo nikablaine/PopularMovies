@@ -64,7 +64,7 @@ public class MainActivityFragment extends Fragment {
         // if we're resuming after changing a setting, then we update the grid view
         Sort sort = currentSort;
         updateCurrentSort();
-        if (sort != currentSort) {
+        if (sort != currentSort || currentSort == Sort.FAVOURITES) {
             updateMovies();
         }
     }

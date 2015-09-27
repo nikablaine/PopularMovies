@@ -80,7 +80,7 @@ public class DetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         trailerView = (LinearLayout) rootView.findViewById(R.id.trailer_cards);
         reviewView = (LinearLayout) rootView.findViewById(R.id.review_list);
 
