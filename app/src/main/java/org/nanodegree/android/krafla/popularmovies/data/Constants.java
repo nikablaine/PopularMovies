@@ -21,6 +21,8 @@ public class Constants {
     public static final String TRAILERS_LIST_KEY = "trailers";
     public static final String POPULARITY_KEY = "pop";
     public static final String MOVIE_ID_KEY = "movie_id";
+    public static final String SEPARATOR = ": ";
+    public static final String END_OF_LINE = "; ";
 
     private Constants() {
     }

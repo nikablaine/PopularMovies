@@ -41,6 +41,7 @@
         <item>@string/pref_sort_rated_value</item>
     </string-array>
     <string name="trailers_caption">Trailers:</string>
+    <string name="reviews_caption">Reviews:</string>
     <string name="playback">playback</string>
 
     <!-- Example settings for Data & Sync -->

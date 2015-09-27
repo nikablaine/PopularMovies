@@ -33,6 +33,17 @@ public class JsonUtil {
         return trailerList;
     }
 
+    public static ArrayList<Review> parseReviewString(String jsonString) throws JSONException {
+        JSONArray reviewArray = getResultsArrayFromJson(jsonString);
+        ArrayList<Review> reviewsList = new ArrayList<>();
+        for (int i = 0; i < reviewArray.length(); i++) {
+            JSONObject reviewObject = (JSONObject) reviewArray.get(i);
+            reviewsList.add(Review.parseFromJSONObject(reviewObject));
+
+        }
+        return reviewsList;
+    }
+
     private static JSONArray getResultsArrayFromJson(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObject.getJSONArray("results");

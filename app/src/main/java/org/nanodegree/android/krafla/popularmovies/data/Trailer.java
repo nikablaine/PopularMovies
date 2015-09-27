@@ -18,8 +18,6 @@ public class Trailer implements Parcelable {
     public static final String NAME_KEY = "name";
     public static final String SITE_KEY = "site";
     public static final String KEY_KEY = "key";
-    private static final String SEPARATOR = ": ";
-    private static final String END_OF_LINE = "; ";
 
     /**
      * Id of a trailer ine the movie database.
@@ -107,10 +105,10 @@ public class Trailer implements Parcelable {
     @Override
     public String toString() {
         return new StringBuilder()
-                .append(ID_KEY + SEPARATOR + id + END_OF_LINE)
-                .append(NAME_KEY + SEPARATOR + name + END_OF_LINE)
-                .append(SITE_KEY + SEPARATOR + site)
-                .append(KEY_KEY + SEPARATOR + key)
+                .append(ID_KEY + Constants.SEPARATOR + id + Constants.END_OF_LINE)
+                .append(NAME_KEY + Constants.SEPARATOR + name + Constants.END_OF_LINE)
+                .append(SITE_KEY + Constants.SEPARATOR + site)
+                .append(KEY_KEY + Constants.SEPARATOR + key)
                 .toString();
     }
 

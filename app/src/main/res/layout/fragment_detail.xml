@@ -65,10 +65,31 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/trailers_caption"
+            android:textStyle="bold"
             android:textColor="@android:color/darker_gray" />
 
         <LinearLayout
             android:id="@+id/trailer_cards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reviews_caption"
+            android:textStyle="bold"
+            android:textColor="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:id="@+id/review_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"/>
