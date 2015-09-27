@@ -30,15 +30,19 @@
     <string name="pref_sort_label">Sort by</string>
     <string name="pref_sort_popular">Most popular</string>
     <string name="pref_sort_rated">Highest rated</string>
+    <string name="pref_sort_favourites">Favourites</string>
     <string name="pref_sort_popular_value">0</string>
     <string name="pref_sort_rated_value">1</string>
+    <string name="pref_sort_favourites_value">2</string>
     <string-array name="pref_sort_list_titles">
         <item>@string/pref_sort_popular</item>
         <item>@string/pref_sort_rated</item>
+        <item>@string/pref_sort_favourites</item>
     </string-array>
     <string-array name="pref_sort_list_values">
         <item>@string/pref_sort_popular_value</item>
         <item>@string/pref_sort_rated_value</item>
+        <item>@string/pref_sort_favourites_value</item>
     </string-array>
     <string name="trailers_caption">Trailers:</string>
     <string name="reviews_caption">Reviews:</string>

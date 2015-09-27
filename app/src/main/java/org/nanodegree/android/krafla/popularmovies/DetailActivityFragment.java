@@ -1,8 +1,11 @@
 package org.nanodegree.android.krafla.popularmovies;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -25,6 +29,7 @@ import org.nanodegree.android.krafla.popularmovies.data.Movie;
 import org.nanodegree.android.krafla.popularmovies.data.Review;
 import org.nanodegree.android.krafla.popularmovies.data.Trailer;
 import org.nanodegree.android.krafla.popularmovies.data.URLs;
+import org.nanodegree.android.krafla.popularmovies.db.MovieContract;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -91,13 +96,71 @@ public class DetailActivityFragment extends Fragment {
                 update(rootView);
             }
         }
+
+        final ImageButton favouritesButton = (ImageButton) rootView.findViewById(R.id.add_to_favourites);
+        final Bitmap greyHeart = BitmapFactory.decodeResource(getResources(), R.drawable.grey_heart);
+        Bitmap redHeart = BitmapFactory.decodeResource(getResources(), R.drawable.red_heart);
+
+        final boolean favourite = movie.isFavourite(getActivity());
+        favouritesButton.setImageBitmap(favourite ? redHeart : greyHeart);
+
+        favouritesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // un-favourite the movie
+                if (favourite) {
+                    new AsyncTask<Void, Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            getActivity().getContentResolver().delete(
+                                    MovieContract.MovieEntry.CONTENT_URI,
+                                    MovieContract.MovieEntry.MOVIE_ID + " = ?",
+                                    new String[]{Integer.toString(movie.getId())}
+                            );
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Void aVoid) {
+                            favouritesButton.setImageBitmap(greyHeart);
+                        }
+                    }.execute();
+                } else {
+                    new AsyncTask<Void, Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            ContentValues values = new ContentValues();
+
+                            values.put(MovieContract.MovieEntry.MOVIE_ID, movie.getId());
+                            values.put(MovieContract.MovieEntry.ORIGINAL_TITLE, movie.getOriginalTitle());
+                            values.put(MovieContract.MovieEntry.POSTER, movie.getPosterPath());
+                            values.put(MovieContract.MovieEntry.BACKDROP, movie.getBackdropPath());
+                            values.put(MovieContract.MovieEntry.OVERVIEW, movie.getOverview());
+                            values.put(MovieContract.MovieEntry.RATING, movie.getUserRating());
+                            values.put(MovieContract.MovieEntry.RELEASE_DATE, movie.getReleaseDate());
+
+                            getActivity().getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Void aVoid) {
+                            favouritesButton.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.red_heart));
+                        }
+                    }.execute();
+                }
+            }
+        });
+
         return rootView;
     }
 
-    public class FetchTrailersTask extends AsyncTask<String, Void, String> {
+    public class FetchTrailersTask extends AsyncTask<Integer, Void, String> {
 
         @Override
-        protected String doInBackground(String... params) {
+        protected String doInBackground(Integer... params) {
             String trailerUrlPattern = URLs.TRAILER_URL_PATTERN;
             return getServerAnswer(trailerUrlPattern, params);
         }
@@ -114,10 +177,10 @@ public class DetailActivityFragment extends Fragment {
         }
     }
 
-    private class FetchReviewsTask extends AsyncTask<String, Void, String> {
+    private class FetchReviewsTask extends AsyncTask<Integer, Void, String> {
 
         @Override
-        protected String doInBackground(String... params) {
+        protected String doInBackground(Integer... params) {
             String trailerUrlPattern = URLs.REVIEWS_URL_PATTERN;
             return getServerAnswer(trailerUrlPattern, params);
         }
@@ -135,12 +198,12 @@ public class DetailActivityFragment extends Fragment {
     }
 
     @Nullable
-    private String getServerAnswer(String urlPattern, String[] params) {
+    private String getServerAnswer(String urlPattern, Integer[] params) {
         if (params.length < 1) {
             throw new IllegalArgumentException("Bad params");
         }
 
-        String id = params[0];
+        int id = params[0];
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -247,7 +310,7 @@ public class DetailActivityFragment extends Fragment {
     }
 
     private void update(View rootView) {
-        String movieId = movie.getId();
+        int movieId = movie.getId();
         TextView titleView = (TextView) rootView.findViewById(R.id.movie_title);
         titleView.setText(movie.getOriginalTitle());
 

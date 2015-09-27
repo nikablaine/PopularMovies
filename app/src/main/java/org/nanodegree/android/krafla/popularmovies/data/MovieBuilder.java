@@ -7,12 +7,12 @@ public class MovieBuilder {
     private String overview;
     private double userRating;
     private String releaseDate;
-    private String id;
+    private int id;
 
     public MovieBuilder() {
     }
 
-    public MovieBuilder setId(String id) {
+    public MovieBuilder setId(int id) {
         this.id = id;
         return this;
     }

@@ -1,5 +1,7 @@
 package org.nanodegree.android.krafla.popularmovies.data;
 
+import org.nanodegree.android.krafla.popularmovies.db.MovieContract;
+
 /**
  * Utility class containing useful constant values.
  *
@@ -23,6 +25,32 @@ public class Constants {
     public static final String MOVIE_ID_KEY = "movie_id";
     public static final String SEPARATOR = ": ";
     public static final String END_OF_LINE = "; ";
+
+    public static final int COL_ID = 0;
+    public static final int COL_MOVIE_ID = 1;
+    public static final int COL_TITLE = 2;
+    public static final int COL_POSTER = 3;
+    public static final int COL_BACKDROP = 4;
+    public static final int COL_OVERVIEW = 5;
+    public static final int COL_RATING = 6;
+    public static final int COL_RELEASED = 7;
+
+    public static final String[] MOVIE_PROJECTION = {
+            MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.MOVIE_ID,
+            MovieContract.MovieEntry.ORIGINAL_TITLE,
+            MovieContract.MovieEntry.POSTER,
+            MovieContract.MovieEntry.BACKDROP,
+            MovieContract.MovieEntry.OVERVIEW,
+            MovieContract.MovieEntry.RATING,
+            MovieContract.MovieEntry.RELEASE_DATE
+    };
+
+    public enum Sort {
+        POPULARITY,
+        RATING,
+        FAVOURITES
+    }
 
     private Constants() {
     }

@@ -1,7 +1,9 @@
 package org.nanodegree.android.krafla.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,9 +21,11 @@ import android.widget.GridView;
 import org.json.JSONException;
 import org.nanodegree.android.krafla.popularmovies.adapters.ImageAdapter;
 import org.nanodegree.android.krafla.popularmovies.data.Constants;
+import org.nanodegree.android.krafla.popularmovies.data.Constants.Sort;
 import org.nanodegree.android.krafla.popularmovies.data.JsonUtil;
 import org.nanodegree.android.krafla.popularmovies.data.Movie;
 import org.nanodegree.android.krafla.popularmovies.data.URLs;
+import org.nanodegree.android.krafla.popularmovies.db.MovieContract;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +37,7 @@ import java.util.ArrayList;
 
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.API_KEY_PARAM;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_KEY;
+import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_PROJECTION;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.POPULARITY_OPTION;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.RATING_OPTION;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.SORT_PARAM;
@@ -47,7 +52,7 @@ public class MainActivityFragment extends Fragment {
 
     private ImageAdapter movieAdapter;
     private ArrayList<Movie> movies;
-    private boolean currentSort;
+    private Sort currentSort;
 
     public MainActivityFragment() {
     }
@@ -57,7 +62,7 @@ public class MainActivityFragment extends Fragment {
         super.onResume();
 
         // if we're resuming after changing a setting, then we update the grid view
-        boolean sort = currentSort;
+        Sort sort = currentSort;
         updateCurrentSort();
         if (sort != currentSort) {
             updateMovies();
@@ -112,24 +117,27 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void updateMovies() {
-        FetchMovieTask fetchMovieTask = new FetchMovieTask();
         updateCurrentSort();
-        fetchMovieTask.execute(currentSort);
+        if (currentSort != Sort.FAVOURITES) {
+            FetchMovieTask fetchMovieTask = new FetchMovieTask();
+            fetchMovieTask.execute(currentSort);
+        } else {
+            new FetchFavouriteMoviesTask(getActivity()).execute();
+        }
     }
 
     private void updateCurrentSort() {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String popularValue = getString(R.string.pref_sort_popular_value);
-        String sort = defaultSharedPreferences.getString(getString(R.string.pref_sort_key), popularValue);
-        currentSort = sort.equals(popularValue);
+        int sort = Integer.parseInt(defaultSharedPreferences.getString(getString(R.string.pref_sort_key), "0"));
+        currentSort = Sort.values()[sort];
     }
 
-    public class FetchMovieTask extends AsyncTask<Boolean, Void, String> {
+    public class FetchMovieTask extends AsyncTask<Sort, Void, String> {
 
         private final String apiKey = getString(R.string.api_key);
 
         @Override
-        protected String doInBackground(Boolean... params) {
+        protected String doInBackground(Sort... params) {
 
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
@@ -140,7 +148,7 @@ public class MainActivityFragment extends Fragment {
                 Uri builtUri = Uri.parse(URLs.MOVIEDB_BASE_URL)
                         .buildUpon()
                         .appendQueryParameter(API_KEY_PARAM, apiKey)
-                        .appendQueryParameter(SORT_PARAM, params[0] ? POPULARITY_OPTION : RATING_OPTION)
+                        .appendQueryParameter(SORT_PARAM, params[0] == Sort.POPULARITY ? POPULARITY_OPTION : RATING_OPTION)
                         .build();
                 URL url = new URL(builtUri.toString());
                 Log.d(LOG_TAG, "Request = " + url);
@@ -196,6 +204,46 @@ public class MainActivityFragment extends Fragment {
                 movieAdapter.updateData(movies);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, "Could not parse string returned from the server", e);
+            }
+        }
+    }
+
+    public class FetchFavouriteMoviesTask extends AsyncTask<Void, Void, Void> {
+
+        private Context context;
+
+        public FetchFavouriteMoviesTask(Context context) {
+            this.context = context;
+        }
+
+        private void getFavoriteMoviesDataFromCursor(Cursor cursor) {
+            movies = new ArrayList<>();
+            if (cursor != null && cursor.moveToFirst()) {
+                while (cursor.moveToNext()) {
+                    Movie movie = new Movie(cursor);
+                    movies.add(movie);
+                }
+                cursor.close();
+            }
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Cursor cursor = context.getContentResolver().query(
+                    MovieContract.MovieEntry.CONTENT_URI,
+                    MOVIE_PROJECTION,
+                    null,
+                    null,
+                    null
+            );
+            getFavoriteMoviesDataFromCursor(cursor);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (movies != null) {
+                movieAdapter.updateData(movies);
             }
         }
     }
