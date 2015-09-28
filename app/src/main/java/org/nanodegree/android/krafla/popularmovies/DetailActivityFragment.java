@@ -90,20 +90,30 @@ public class DetailActivityFragment extends Fragment {
 
         if (savedInstanceState != null) {
             processSavedInstanceState(savedInstanceState, rootView);
-        } else {
-            Activity activity = getActivity();
-            Intent intent = activity.getIntent();
-            if (intent != null && intent.hasExtra(MOVIE_KEY)) {
-                Bundle bundleExtra = intent.getBundleExtra(MOVIE_KEY);
-                movie = Movie.parseFromBundle(bundleExtra);
+        }
 
-                update(rootView);
-            }
+        Activity activity = getActivity();
+        Intent intent = activity.getIntent();
+        if (intent != null && intent.hasExtra(MOVIE_KEY)) {
+            Bundle bundleExtra = intent.getBundleExtra(MOVIE_KEY);
+            movie = Movie.parseFromBundle(bundleExtra);
+            update(rootView);
+        }
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            movie = arguments.getParcelable(MOVIE_KEY);
+            update(rootView);
         }
 
         final ImageButton favouritesButton = (ImageButton) rootView.findViewById(R.id.add_to_favourites);
         final Bitmap greyHeart = BitmapFactory.decodeResource(getResources(), R.drawable.grey_heart);
         Bitmap redHeart = BitmapFactory.decodeResource(getResources(), R.drawable.red_heart);
+
+
+        if (movie == null) {
+            return rootView;
+        }
 
         final boolean favourite = movie.isFavourite(getActivity());
         favouritesButton.setImageBitmap(favourite ? redHeart : greyHeart);

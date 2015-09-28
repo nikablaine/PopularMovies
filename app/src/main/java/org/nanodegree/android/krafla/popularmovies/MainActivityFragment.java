@@ -252,9 +252,22 @@ public class MainActivityFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Movie movie = (Movie) movieAdapter.getItem(position);
-            Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-            detailIntent.putExtra(MOVIE_KEY, movie.assembleBundle());
-            startActivity(detailIntent);
+            boolean isTwoPane = ((MainActivity) getActivity()).isTwoPane();
+            if (isTwoPane) {
+                Bundle movieInfo = new Bundle();
+                movieInfo.putParcelable(Constants.MOVIE_KEY, movie);
+
+                DetailActivityFragment fragment = new DetailActivityFragment();
+                fragment.setArguments(movieInfo);
+
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, fragment, MainActivity.DETAILFRAGMENT_TAG)
+                        .commit();
+            } else {
+                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                detailIntent.putExtra(MOVIE_KEY, movie.assembleBundle());
+                startActivity(detailIntent);
+            }
         }
     }
 }
