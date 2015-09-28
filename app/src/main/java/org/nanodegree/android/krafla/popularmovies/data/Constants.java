@@ -21,11 +21,12 @@ public class Constants {
     public static final String EMPTY_STRING = "";
     public static final String MOVIES_LIST_KEY = "movies";
     public static final String TRAILERS_LIST_KEY = "trailers";
+    public static final String REVIEWS_LIST_KEY = "reviews";
     public static final String POPULARITY_KEY = "pop";
     public static final String MOVIE_ID_KEY = "movie_id";
     public static final String SEPARATOR = ": ";
-    public static final String END_OF_LINE = "; ";
 
+    public static final String END_OF_LINE = "; ";
     public static final int COL_ID = 0;
     public static final int COL_MOVIE_ID = 1;
     public static final int COL_TITLE = 2;
@@ -33,8 +34,8 @@ public class Constants {
     public static final int COL_BACKDROP = 4;
     public static final int COL_OVERVIEW = 5;
     public static final int COL_RATING = 6;
-    public static final int COL_RELEASED = 7;
 
+    public static final int COL_RELEASED = 7;
     public static final String[] MOVIE_PROJECTION = {
             MovieContract.MovieEntry._ID,
             MovieContract.MovieEntry.MOVIE_ID,

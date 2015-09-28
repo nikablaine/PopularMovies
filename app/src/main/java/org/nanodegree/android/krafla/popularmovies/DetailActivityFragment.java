@@ -45,6 +45,7 @@ import static org.nanodegree.android.krafla.popularmovies.data.Constants.DEFAULT
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.MOVIE_KEY;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.RATED;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.RELEASED;
+import static org.nanodegree.android.krafla.popularmovies.data.Constants.REVIEWS_LIST_KEY;
 import static org.nanodegree.android.krafla.popularmovies.data.Constants.TRAILERS_LIST_KEY;
 
 
@@ -71,6 +72,9 @@ public class DetailActivityFragment extends Fragment {
         }
         if (movie != null) {
             outState.putParcelable(Constants.MOVIE_KEY, movie);
+        }
+        if (reviews != null) {
+            outState.putParcelableArrayList(Constants.REVIEWS_LIST_KEY, reviews);
         }
         super.onSaveInstanceState(outState);
     }
@@ -210,7 +214,7 @@ public class DetailActivityFragment extends Fragment {
         // Will contain the raw JSON response as a string.
         String answerString = null;
         try {
-            Uri builtUri = Uri.parse(MessageFormat.format(urlPattern, id))
+            Uri builtUri = Uri.parse(MessageFormat.format(urlPattern, String.valueOf(id)))
                     .buildUpon()
                     .appendQueryParameter(API_KEY_PARAM, getResources().getString(R.string.api_key))
                     .build();
@@ -304,7 +308,9 @@ public class DetailActivityFragment extends Fragment {
         if (savedInstanceState != null) {
             trailers = savedInstanceState.getParcelableArrayList(TRAILERS_LIST_KEY);
             movie = savedInstanceState.getParcelable(MOVIE_KEY);
+            reviews = savedInstanceState.getParcelableArrayList(REVIEWS_LIST_KEY);
             processTrailers();
+            processReviews();
         }
         update(rootView);
     }
